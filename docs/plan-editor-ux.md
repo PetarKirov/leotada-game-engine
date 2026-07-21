@@ -10,7 +10,7 @@
 
 Editor de cena interativo para **level design 3D** em cima dos gizmos/overlay
 já existentes: colocar e posicionar objetos, configurar luzes (directional /
-point / spot*) com **sombra**, editar atributos (mesh + material PBR + física
+point / spot\*) com **sombra**, editar atributos (mesh + material PBR + física
 Box3D com mesh estático e convex hull static/dynamic), assets versionados
 separados da cena, e save/load de cena — sem virar um DCC completo.
 
@@ -19,28 +19,28 @@ sombra são obrigatórios (ver § Luz).
 
 Escopo v1:
 
-| Pilar | O que entrega |
-|:---|:---|
-| **Level design** | Spawn, picking, gizmos, snap/grid, hierarquia, duplicar/apagar |
-| **Luz** | Componente ECS `Light` (UI: entidade dedicada); dir/point/(spot); **sombra obrigatória** nos tipos shipados; IBL preset |
-| **Primitivos / mesh** | Primitivas + meshAsset + material |
-| **Física** | Primitivas + **convex hull** (static **e** dynamic) + **triangle mesh** (static only) |
-| **Assets** | Formato `*.asset.json` versionado (render + collider + hull bake) — **não** embutir geometria na cena |
-| **Cena** | `*.scene.json` **minificado**, versionado; refs a assets; `rot` = quaternion |
+| Pilar                 | O que entrega                                                                                                           |
+| :-------------------- | :---------------------------------------------------------------------------------------------------------------------- |
+| **Level design**      | Spawn, picking, gizmos, snap/grid, hierarquia, duplicar/apagar                                                          |
+| **Luz**               | Componente ECS `Light` (UI: entidade dedicada); dir/point/(spot); **sombra obrigatória** nos tipos shipados; IBL preset |
+| **Primitivos / mesh** | Primitivas + meshAsset + material                                                                                       |
+| **Física**            | Primitivas + **convex hull** (static **e** dynamic) + **triangle mesh** (static only)                                   |
+| **Assets**            | Formato `*.asset.json` versionado (render + collider + hull bake) — **não** embutir geometria na cena                   |
+| **Cena**              | `*.scene.json` **minificado**, versionado; refs a assets; `rot` = quaternion                                            |
 
 ## Decisões fechadas
 
-| # | Tópico | Decisão |
-|---:|:---|:---|
-| 1 | Limites de luz | **1** directional + **8** point + **4** spot (slots UBO; overflow = editor bloqueia create) |
-| 2 | Sombra | **Obrigatória** para todo tipo de luz que entrar na v1. Se escopo apertar → **cortar spot**, manter dir + point com sombra |
-| 3 | Light no ECS | Componente POD `Light` em entidade; UI spawna **entidade dedicada** (`Transform` + `Light`). Runtime pode anexar `Light` a qualquer entidade |
-| 4 | Triangle mesh | **Só static** (e kinematic se útil). Dynamic **recusado** na API e no inspector |
-| 4b | Convex hull | **Static e dynamic** (obrigatório) |
-| 5 | Onde vive geometria/hull | **Asset separado** (`*.asset.json`), não pontos soltos na cena. Cena só referencia `StringId` path |
-| 6 | Collider mesh | Default = mesh visual do asset; **override** opcional para outro mesh / bake hull |
-| 7 | Formato disco | JSON **minificado** (sem pretty-print); binário depois se precisar |
-| 8 | Rotação | Disco + engine = **quaternion** `[x,y,z,w]`. UI do editor mostra **Euler** (graus), converte sempre ao aplicar/salvar |
+|   # | Tópico                   | Decisão                                                                                                                                      |
+| --: | :----------------------- | :------------------------------------------------------------------------------------------------------------------------------------------- |
+|   1 | Limites de luz           | **1** directional + **8** point + **4** spot (slots UBO; overflow = editor bloqueia create)                                                  |
+|   2 | Sombra                   | **Obrigatória** para todo tipo de luz que entrar na v1. Se escopo apertar → **cortar spot**, manter dir + point com sombra                   |
+|   3 | Light no ECS             | Componente POD `Light` em entidade; UI spawna **entidade dedicada** (`Transform` + `Light`). Runtime pode anexar `Light` a qualquer entidade |
+|   4 | Triangle mesh            | **Só static** (e kinematic se útil). Dynamic **recusado** na API e no inspector                                                              |
+|  4b | Convex hull              | **Static e dynamic** (obrigatório)                                                                                                           |
+|   5 | Onde vive geometria/hull | **Asset separado** (`*.asset.json`), não pontos soltos na cena. Cena só referencia `StringId` path                                           |
+|   6 | Collider mesh            | Default = mesh visual do asset; **override** opcional para outro mesh / bake hull                                                            |
+|   7 | Formato disco            | JSON **minificado** (sem pretty-print); binário depois se precisar                                                                           |
+|   8 | Rotação                  | Disco + engine = **quaternion** `[x,y,z,w]`. UI do editor mostra **Euler** (graus), converte sempre ao aplicar/salvar                        |
 
 ---
 
@@ -55,14 +55,14 @@ Paths reais:
 - [`source/demo/editor.d`](../source/demo/editor.d) — **level editor** wired
   (`dub run --config=editor`)
 
-| Área | API hoje | Gap / backlog |
-|:---|:---|:---|
-| Scene graph | `Transform` (full quat) / `SceneGraph` | — |
-| Render lit | multi-light UBO + dir/point/spot shadows | CSM, clustered, shadow cache |
-| Material | `Material` / `MaterialParams` + editor override | — |
-| Primitivas / glTF | `primitives`, `TexMesh`, `loadGltf*` + `*.asset.json` | — |
-| Física | box/sphere/… + hull + static mesh | VHACD / mesh dynamic |
-| Editor | config `editor` = level editor | PIE completo, file dialogs nativos |
+| Área              | API hoje                                              | Gap / backlog                      |
+| :---------------- | :---------------------------------------------------- | :--------------------------------- |
+| Scene graph       | `Transform` (full quat) / `SceneGraph`                | —                                  |
+| Render lit        | multi-light UBO + dir/point/spot shadows              | CSM, clustered, shadow cache       |
+| Material          | `Material` / `MaterialParams` + editor override       | —                                  |
+| Primitivas / glTF | `primitives`, `TexMesh`, `loadGltf*` + `*.asset.json` | —                                  |
+| Física            | box/sphere/… + hull + static mesh                     | VHACD / mesh dynamic               |
+| Editor            | config `editor` = level editor                        | PIE completo, file dialogs nativos |
 
 ## Fora de escopo
 
@@ -92,7 +92,7 @@ Paths reais:
 
 ## Modelo de dados (ECS + editor)
 
-Runtime / editor compartilham componentes POD. A UI pode *parecer* “Light
+Runtime / editor compartilham componentes POD. A UI pode _parecer_ “Light
 entity”, mas o storage é ECS:
 
 ```text
@@ -129,11 +129,11 @@ Hoje: 1 directional + IBL + 1 shadow map 2D. Point/spot inexistentes.
 
 ### Modelo (fechado)
 
-| Tipo | Campos | Atenuação | Sombra v1 |
-|:---|:---|:---|:---|
-| **Directional** | `direction`, `color`, `intensity` | — | Ortho shadow map (como hoje); 1 caster (flag `castShadows`) |
-| **Point** | `position`, `color`, `intensity`, `range` | smooth inverse-square até `range` | **Cubemap** depth (6 faces) + PCF; obrigatório |
-| **Spot** | `position`, `direction`, `color`, `intensity`, `range`, `innerConeDeg`, `outerConeDeg` | idem + cone | Perspective shadow map + PCF; **só se couber no prazo** |
+| Tipo            | Campos                                                                                 | Atenuação                         | Sombra v1                                                   |
+| :-------------- | :------------------------------------------------------------------------------------- | :-------------------------------- | :---------------------------------------------------------- |
+| **Directional** | `direction`, `color`, `intensity`                                                      | —                                 | Ortho shadow map (como hoje); 1 caster (flag `castShadows`) |
+| **Point**       | `position`, `color`, `intensity`, `range`                                              | smooth inverse-square até `range` | **Cubemap** depth (6 faces) + PCF; obrigatório              |
+| **Spot**        | `position`, `direction`, `color`, `intensity`, `range`, `innerConeDeg`, `outerConeDeg` | idem + cone                       | Perspective shadow map + PCF; **só se couber no prazo**     |
 
 Limites UBO: **1 dir + 8 point + 4 spot**. Create além do limite → erro na UI.
 
@@ -153,11 +153,11 @@ ainda pode reservar `"spot"` para v2, ou omitir até existir.
 
 ### Orçamento de sombra sugerido (v1)
 
-| Recurso | Sugestão inicial |
-|:---|:---|
-| Directional map | 2048² (já típico) |
-| Point cubemap | até **2–4** points com `castShadows` @ 512²/face (resto lit sem shadow ou erro se exceder) |
-| Spot map | até **1–2** @ 1024² se spot existir |
+| Recurso         | Sugestão inicial                                                                           |
+| :-------------- | :----------------------------------------------------------------------------------------- |
+| Directional map | 2048² (já típico)                                                                          |
+| Point cubemap   | até **2–4** points com `castShadows` @ 512²/face (resto lit sem shadow ou erro se exceder) |
+| Spot map        | até **1–2** @ 1024² se spot existir                                                        |
 
 Editor: toggle `castShadows`; ao exceder budget, avisa e não liga mais
 shadows (luz continua iluminando).
@@ -201,11 +201,11 @@ directional intacto. Spot: DoD separado ou “N/A se cortado”.
 
 ### Capacidade
 
-| Shape | Static | Kinematic | Dynamic |
-|:---|:---|:---|:---|
-| primitivas | ✅ | ✅ | ✅ |
-| **convexHull** | ✅ | ✅ | ✅ |
-| **triangleMesh** | ✅ | ✅ | ❌ |
+| Shape            | Static | Kinematic | Dynamic |
+| :--------------- | :----- | :-------- | :------ |
+| primitivas       | ✅     | ✅        | ✅      |
+| **convexHull**   | ✅     | ✅        | ✅      |
+| **triangleMesh** | ✅     | ✅        | ❌      |
 
 ### Fonte do collider (fechado)
 
@@ -266,10 +266,11 @@ Falha de bake → mensagem + não grava.
 - [x] Cores gizmo: hull ciano, mesh magenta, AABB amarelo
 - [x] Cena só guarda ref ao asset + motion/mass overrides locais se houver
 
-**DoD:**  
-1) asset static mesh collider; bola quica.  
-2) hull dynamic bakeado no asset; Simulate.  
-3) mesh+dynamic bloqueado.
+**DoD:**
+
+1. asset static mesh collider; bola quica.
+2. hull dynamic bakeado no asset; Simulate.
+3. mesh+dynamic bloqueado.
 
 ---
 
@@ -280,9 +281,9 @@ vive em `*.asset.json` (minificado), referenciado por path.
 
 ### Papel
 
-| Arquivo | Contém |
-|:---|:---|
-| `*.asset.json` | Definição completa de um prop/modelo: render, materiais, collision mesh opcional, hull bake, meta |
+| Arquivo        | Contém                                                                                               |
+| :------------- | :--------------------------------------------------------------------------------------------------- |
+| `*.asset.json` | Definição completa de um prop/modelo: render, materiais, collision mesh opcional, hull bake, meta    |
 | `*.scene.json` | Entidades, transforms (quat), overrides leves, lights, settings; **refs** `StringId` → path do asset |
 
 Fontes externas (glTF, BMP/TGA) continuam como arquivos brutos; o asset
@@ -291,7 +292,32 @@ Fontes externas (glTF, BMP/TGA) continuam como arquivos brutos; o asset
 ### Schema sugerido — `game-engine.asset` v1
 
 ```json
-{"format":"game-engine.asset","version":1,"kind":"model","meta":{"name":"crate"},"render":{"source":"assets/models/crate.gltf","primitive":null},"materials":[{"baseColor":[1,1,1,1],"metallic":0,"roughness":0.5,"albedo":"assets/tex/crate.bmp","flags":0}],"collision":{"triangleMesh":{"source":"render"},"convexHull":{"maxVertexCount":64,"points":[[0,0,0],[1,0,0]]}}}
+{
+  "format": "game-engine.asset",
+  "version": 1,
+  "kind": "model",
+  "meta": { "name": "crate" },
+  "render": { "source": "assets/models/crate.gltf", "primitive": null },
+  "materials": [
+    {
+      "baseColor": [1, 1, 1, 1],
+      "metallic": 0,
+      "roughness": 0.5,
+      "albedo": "assets/tex/crate.bmp",
+      "flags": 0
+    }
+  ],
+  "collision": {
+    "triangleMesh": { "source": "render" },
+    "convexHull": {
+      "maxVertexCount": 64,
+      "points": [
+        [0, 0, 0],
+        [1, 0, 0]
+      ]
+    }
+  }
+}
 ```
 
 Campos (legível):
@@ -330,8 +356,8 @@ Regras:
 - [x] Save asset após bake hull / mudar collision source
 - [x] Exemplo `assets/models/crate.asset.json` + golden test
 - [ ] Primitive assets (box etc.) geráveis pelo editor (Save As asset) —
-  backlog leve; bake hull já grava no asset referenciado. Primitivos
-  one-off via `visual.kind` na entidade sem asset — permitido.
+      backlog leve; bake hull já grava no asset referenciado. Primitivos
+      one-off via `visual.kind` na entidade sem asset — permitido.
 
 **DoD:** round-trip asset com render + hull points; cena referencia e spawna.
 
@@ -349,7 +375,7 @@ Regras:
 
 Arquivo: `*.scene.json`, **minificado**, key order determinística.
 
-Exemplo *expanded only for docs* (disco real sem whitespace):
+Exemplo _expanded only for docs_ (disco real sem whitespace):
 
 ```json
 {
@@ -412,11 +438,11 @@ Notas:
 
 ### Versionamento
 
-| Campo | Regra |
-|:---|:---|
-| `format` | `game-engine.scene` / `game-engine.asset` |
-| `version` | monotônico; migrate em cadeia |
-| Save | minificado; ordem de keys estável |
+| Campo          | Regra                                                                                                                  |
+| :------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `format`       | `game-engine.scene` / `game-engine.asset`                                                                              |
+| `version`      | monotônico; migrate em cadeia                                                                                          |
+| Save           | minificado; ordem de keys estável                                                                                      |
 | Unknown fields | rejeitar com erro claro na v1 (mais simples) **ou** strip — preferir **erro** até termos necessidade de forward-compat |
 
 ### Módulos
@@ -506,7 +532,7 @@ engine/editor/scene_load.d   // spawn EditorWorld a partir da cena
 ### ED-8 — Polish
 
 - [x] Multi-select, undo/redo, align ground, copy attrs, PIE opcional
-  (Simulate cobre PIE físico mínimo)
+      (Simulate cobre PIE físico mínimo)
 
 **DoD:** undo de move; multi-mover 3 boxes.
 

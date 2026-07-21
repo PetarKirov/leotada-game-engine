@@ -57,20 +57,22 @@ This is a commercial-grade 3D game engine written in **D**, targeting Bevy Engin
 
 The engine uses a two-layer model for GC: strict in the engine core, permissive for gameplay.
 
-| Layer | GC | `@nogc` | Who writes it |
-|:---|:---|:---|:---|
-| **Engine core** (`engine/`) | Forbidden in frame path | Required on all frame-loop functions | Engine developers |
-| **Gameplay / public API** (systems, game logic) | Allowed by default | Opt-in for performance-critical systems | Game developers |
+| Layer                                           | GC                      | `@nogc`                                 | Who writes it     |
+| :---------------------------------------------- | :---------------------- | :-------------------------------------- | :---------------- |
+| **Engine core** (`engine/`)                     | Forbidden in frame path | Required on all frame-loop functions    | Engine developers |
+| **Gameplay / public API** (systems, game logic) | Allowed by default      | Opt-in for performance-critical systems | Game developers   |
 
 **The boundary is the frame loop.** Everything inside `engine/` called from `pollEvents()` through `endFrame()` must be `@nogc`. Gameplay systems that consume `World.query()` ranges are free to use the GC.
 
 **Component data is always strict:**
+
 - Components must pass `isPod!T` (from `engine.core.pod`) — no slices, strings, delegates, class refs, or pointers to GC memory.
 - Use `Pod!T` in every container declaration. It produces a clear compile error with a link to the docs if violated.
 - This ensures the GC never scans the dense arrays in `ComponentStore`, even with thousands of entities.
-- Dynamic arrays (`T[]`) used for internal ECS storage are GC roots, but their *contents* (POD structs) are never scanned.
+- Dynamic arrays (`T[]`) used for internal ECS storage are GC roots, but their _contents_ (POD structs) are never scanned.
 
 **Gameplay system logic is free:**
+
 - Systems are regular functions — they may allocate, use `string`, `format`, dynamic arrays, closures.
 - For performance-critical systems, developers can opt into `@nogc` and use pre-allocated buffers.
 - This mirrors Unity's model (C++ engine / C# gameplay) but within a single language.
@@ -147,14 +149,14 @@ void aiSystem(ref World w, ref FrameArena tmp, float dt) {
 
 Benchmark: 1200 frames, 4096 NPCs, same logical workload, `precise:1` GC.
 
-| metric | class graph + `string` fields | `Pod!T` + `Handle!T` + `StringId` + `FrameArena` |
-|---|---|---|
-| max GC pause | **7.3 ms** | **1.9 ms** (−74%) |
-| total pause | 197.9 ms | 3.8 ms (−98%) |
-| max frame | 16.1 ms (stalls at 60Hz) | 8.6 ms (within budget) |
-| collections | 40 | 3 |
+| metric       | class graph + `string` fields | `Pod!T` + `Handle!T` + `StringId` + `FrameArena` |
+| ------------ | ----------------------------- | ------------------------------------------------ |
+| max GC pause | **7.3 ms**                    | **1.9 ms** (−74%)                                |
+| total pause  | 197.9 ms                      | 3.8 ms (−98%)                                    |
+| max frame    | 16.1 ms (stalls at 60Hz)      | 8.6 ms (within budget)                           |
+| collections  | 40                            | 3                                                |
 
-Full methodology and results: [docs/incremental-gc-research.md](docs/incremental-gc-research.md) §7.5.  
+Full methodology and results: [docs/incremental-gc-research.md](docs/incremental-gc-research.md) §7.5.
 Implementation plan: [docs/gc-safe-architecture-plan.md](docs/gc-safe-architecture-plan.md).
 
 ## Directory Structure

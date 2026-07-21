@@ -132,7 +132,7 @@ private CTFESphereData generateSphere(int rings = 16, int segments = 32) {
     ushort[] inds;
     verts.reserve((rings+1)*(segments+1));
     inds.reserve(rings*segments*6);
-    
+
     foreach(i; 0..rings+1) {
         float phi = PI * cast(float)i / cast(float)rings;
         float sinPhi = sin(phi);
@@ -141,31 +141,31 @@ private CTFESphereData generateSphere(int rings = 16, int segments = 32) {
             float theta = 2.0f * PI * cast(float)j / cast(float)segments;
             float sinTheta = sin(theta);
             float cosTheta = cos(theta);
-            
+
             float x = cosTheta * sinPhi;
             float y = cosPhi;
             float z = sinTheta * sinPhi;
-            
+
             // Radius 0.5 to match the cube bounds (diameter 1.0)
             verts ~= Vert([x * 0.5f, y * 0.5f, z * 0.5f], [x, y, z]);
         }
     }
-    
+
     foreach(i; 0..rings) {
         foreach(j; 0..segments) {
             ushort first = cast(ushort)(i * (segments + 1) + j);
             ushort second = cast(ushort)(first + segments + 1);
-            
+
             inds ~= first;
             inds ~= second;
             inds ~= cast(ushort)(first + 1);
-            
+
             inds ~= second;
             inds ~= cast(ushort)(second + 1);
             inds ~= cast(ushort)(first + 1);
         }
     }
-    
+
     return CTFESphereData(verts, inds);
 }
 

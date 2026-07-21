@@ -2,15 +2,15 @@
 
 This guide explains how to build a 3D game using the engine's high-level API. The engine follows a Godot-inspired 3-layer model:
 
-| Layer | Purpose | Modules |
-|:------|:--------|:--------|
-| **Scene** | Game-level: camera, controllers, scene graph, batched renderers | `engine.scene.*` |
-| **Graphics** | Resources: meshes, textures, materials, primitives | `engine.graphics.*` |
-| **GPU** | Low-level WGPU wrappers (power users) | `engine.gpu.*` |
-| **Physics** | Rigid bodies via Box3D (shapes, sensors, queries, joints, character) | `engine.physics.*` |
-| **Assets** | Disk loaders (BMP, glTF) | `engine.assets.*` |
-| **Audio** | WAV playback via SDL3 streams | `engine.audio.*` |
-| **DevTools** | In-engine gizmos + debug overlay | `engine.devtools.*` |
+| Layer        | Purpose                                                              | Modules             |
+| :----------- | :------------------------------------------------------------------- | :------------------ |
+| **Scene**    | Game-level: camera, controllers, scene graph, batched renderers      | `engine.scene.*`    |
+| **Graphics** | Resources: meshes, textures, materials, primitives                   | `engine.graphics.*` |
+| **GPU**      | Low-level WGPU wrappers (power users)                                | `engine.gpu.*`      |
+| **Physics**  | Rigid bodies via Box3D (shapes, sensors, queries, joints, character) | `engine.physics.*`  |
+| **Assets**   | Disk loaders (BMP, glTF)                                             | `engine.assets.*`   |
+| **Audio**    | WAV playback via SDL3 streams                                        | `engine.audio.*`    |
+| **DevTools** | In-engine gizmos + debug overlay                                     | `engine.devtools.*` |
 
 Most games only need `engine.app`, `engine.scene`, `engine.graphics`, and `engine.math`. Pull in `engine.physics`, `engine.assets`, `engine.audio`, and `engine.devtools` as you need them — a single `import engine;` re-exports everything.
 
@@ -50,7 +50,7 @@ void main() {
         camera.lookAt(Vec3(0, 5, 10), Vec3(0, 0, 0));
         scene.begin(camera);
         scene.draw(cube, Vec3(0, 0, 0), Vec3(1, 1, 1), Color4.white());
-        
+
         auto frame = app.beginFrame(Color4(0.1, 0.1, 0.15));
         if (!frame.valid) continue;
         scene.end(frame);
@@ -499,23 +499,23 @@ app.input   // InputState — keyboard/mouse state
 
 ### When to Use Each Layer
 
-| I want to... | Use |
-|:---|:---|
-| Draw 3D objects with colors | `Scene3D` + `Mesh` + `Camera` |
-| Draw 3D objects with textures | `Scene3DTextured` + `TexMesh` + `Material` |
-| Parent/child transforms (solar systems, rigs) | `SceneGraph` |
-| Orbit / fly / first-person camera | `engine.scene.controllers` |
-| Directional shadows (depth infra) | `ShadowMap` + `beginShadowPass` — PCF: [plan-pbr.md](plan-pbr.md) |
-| Physics (Box3D) | `engine.physics` — [physics-quickstart.md](physics-quickstart.md) |
-| Load BMP or glTF from disk | `engine.assets.bmp`, `engine.assets.gltf` |
-| Play WAV sound effects | `engine.audio` |
-| Render HUD text | `TextRenderer` |
-| Debug: 3D lines, axes, grid, bounding boxes | `engine.devtools.gizmos` |
-| Debug: structured FPS + labels | `engine.devtools.overlay` |
-| Create custom mesh shapes | `Mesh.fromData` + `Vert` |
-| Custom shader/pipeline | `engine.gpu.pipeline`, `engine.gpu.shader` |
-| Direct GPU buffer management | `engine.gpu.buffer` |
-| Raw WGPU calls | `bindings.wgpu` |
+| I want to...                                  | Use                                                               |
+| :-------------------------------------------- | :---------------------------------------------------------------- |
+| Draw 3D objects with colors                   | `Scene3D` + `Mesh` + `Camera`                                     |
+| Draw 3D objects with textures                 | `Scene3DTextured` + `TexMesh` + `Material`                        |
+| Parent/child transforms (solar systems, rigs) | `SceneGraph`                                                      |
+| Orbit / fly / first-person camera             | `engine.scene.controllers`                                        |
+| Directional shadows (depth infra)             | `ShadowMap` + `beginShadowPass` — PCF: [plan-pbr.md](plan-pbr.md) |
+| Physics (Box3D)                               | `engine.physics` — [physics-quickstart.md](physics-quickstart.md) |
+| Load BMP or glTF from disk                    | `engine.assets.bmp`, `engine.assets.gltf`                         |
+| Play WAV sound effects                        | `engine.audio`                                                    |
+| Render HUD text                               | `TextRenderer`                                                    |
+| Debug: 3D lines, axes, grid, bounding boxes   | `engine.devtools.gizmos`                                          |
+| Debug: structured FPS + labels                | `engine.devtools.overlay`                                         |
+| Create custom mesh shapes                     | `Mesh.fromData` + `Vert`                                          |
+| Custom shader/pipeline                        | `engine.gpu.pipeline`, `engine.gpu.shader`                        |
+| Direct GPU buffer management                  | `engine.gpu.buffer`                                               |
+| Raw WGPU calls                                | `bindings.wgpu`                                                   |
 
 ### Data Flow
 

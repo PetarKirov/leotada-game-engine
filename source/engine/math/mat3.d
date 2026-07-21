@@ -1,11 +1,11 @@
-// 
+//
 module engine.math.mat3;
 
 import engine.math.vec;
 
 pure nothrow @nogc @safe:
 
-// 
+//
 struct Mat3 {
     float[9] m = [
         1, 0, 0,

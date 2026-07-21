@@ -1,4 +1,4 @@
-// 
+//
 module engine.core.profiling;
 
 import bindings.sdl3 : SDL_GetPerformanceCounter, SDL_GetPerformanceFrequency;
@@ -6,10 +6,10 @@ import std.math : sqrt;
 
 @safe:
 
-// 
+//
 enum FRAMETIMER_CAPACITY = 1000;
 
-// 
+//
 struct FrameTimer {
     @disable this(this);
 

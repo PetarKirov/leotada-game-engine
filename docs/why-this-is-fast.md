@@ -98,12 +98,12 @@ The important point is not merely that D has a GC. It is that this engine is str
 
 The engine gets its speed from a small set of architectural decisions:
 
-| Concern | Strategy in this engine | Effect |
-|:---|:---|:---|
-| Memory layout | Dense per-component arrays | Fewer cache misses during iteration |
-| Component lookup | Sparse-set indexing | O(1) access with low constant cost |
-| System execution | Template-based specialization | No virtual dispatch in hot paths |
-| Runtime behavior | `@nogc` frame path and POD components | Predictable per-frame cost |
+| Concern          | Strategy in this engine               | Effect                              |
+| :--------------- | :------------------------------------ | :---------------------------------- |
+| Memory layout    | Dense per-component arrays            | Fewer cache misses during iteration |
+| Component lookup | Sparse-set indexing                   | O(1) access with low constant cost  |
+| System execution | Template-based specialization         | No virtual dispatch in hot paths    |
+| Runtime behavior | `@nogc` frame path and POD components | Predictable per-frame cost          |
 
 These choices all reinforce the same principle: organize the engine around data movement and predictable execution, not around object graphs.
 
@@ -113,12 +113,12 @@ These choices all reinforce the same principle: organize the engine around data 
 
 Bevy is a useful comparison because the high-level ideas are the same even though the language is different.
 
-| Feature | Bevy (Rust) | This engine (D) |
-|:---|:---|:---|
-| ECS storage | Sparse-set / table-based ECS | `ComponentStore(T)` sparse-set |
-| Entity model | Integer-backed entity handle | `EntityId` alias (`uint`) |
-| System specialization | Generic monomorphization | Template instantiation |
-| Safety model | Borrow checker | `@safe` by default + DIP1000 |
-| GPU backend | `wgpu` | `wgpu-native` via manual bindings |
+| Feature               | Bevy (Rust)                  | This engine (D)                   |
+| :-------------------- | :--------------------------- | :-------------------------------- |
+| ECS storage           | Sparse-set / table-based ECS | `ComponentStore(T)` sparse-set    |
+| Entity model          | Integer-backed entity handle | `EntityId` alias (`uint`)         |
+| System specialization | Generic monomorphization     | Template instantiation            |
+| Safety model          | Borrow checker               | `@safe` by default + DIP1000      |
+| GPU backend           | `wgpu`                       | `wgpu-native` via manual bindings |
 
 The goal is the same: achieve modern data-oriented engine performance with abstractions that compile away.

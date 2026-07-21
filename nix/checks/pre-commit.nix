@@ -12,11 +12,14 @@ let
     "nix/dub-lock.json"
   ];
 
-  # Hand-authored JSON we do not want pretty-format-json to reorder/expand
-  # (would thrash the whole dub.json on every commit).
+  # Hand-authored / engine-owned data we do not want pretty-format-json or
+  # prettier to reorder/expand (stable authoring + no asset thrash).
   handFormattedJson = [
     "dub.json"
   ];
+
+  # Scene / model assets — keep engine-authored layout; glTF is JSON-shaped.
+  assetDataRegex = "^assets/";
 
   filesToExcludeRegex =
     files: lib.concatMapStringsSep "|" (entry: "(${lib.escapeRegex entry})") files;
@@ -119,7 +122,8 @@ in
                 { id = "check-json5"; }
                 {
                   id = "pretty-format-json";
-                  exclude = filesToExcludeRegex (generatedJsonFiles ++ handFormattedJson);
+                  exclude =
+                    "(" + filesToExcludeRegex (generatedJsonFiles ++ handFormattedJson) + ")|(${assetDataRegex})";
                 }
                 { id = "check-toml"; }
                 { id = "check-vcs-permalinks"; }
