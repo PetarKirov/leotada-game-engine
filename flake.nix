@@ -27,6 +27,8 @@
       imports = [
         ./nix/d-toolchain.nix
         ./nix/packages/box3d.nix
+        ./nix/packages/build-game-engine-demo.nix
+        ./nix/packages/demos.nix
         ./nix/shells/default.nix
       ];
       systems = import inputs.systems;
