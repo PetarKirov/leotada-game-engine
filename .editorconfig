@@ -1,0 +1,65 @@
+# EditorConfig file: http://EditorConfig.org
+# Adapted from sparkles for this repo's D / Nix / dub layout.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Prefer 4-space indent in D (see AGENTS.md). indent_size is left unset
+# because the tree uses parenthesis-aligned continuation lines that are not
+# multiples of a fixed width — editorconfig-checker would otherwise fail on
+# large parts of source/.
+[*.{d,h,c}]
+indent_size = unset
+
+# dub.json in this tree uses 4-space indent (match existing files).
+[dub.json]
+indent_size = 4
+
+# dub.selections.json / .gitmodules use tabs (upstream defaults).
+[{dub.selections.json,.gitmodules}]
+indent_style = tab
+indent_size = 4
+
+# nixfmt uses 2-space indent.
+[*.nix]
+indent_size = 2
+indent_style = space
+
+# Markdown / docs: code blocks and tables often use intentional spacing.
+[*.md]
+indent_size = unset
+
+# Screenshots and other binary assets — leave untouched.
+[assets/**]
+charset = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+
+# Prebuilt static archives under libs/.
+[libs/**]
+charset = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+
+# Vendored third-party sources (Box3D submodule, etc.).
+[vendor/**]
+charset = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+
+# Legacy demo text dumps — not active source.
+[source/demo/_legacy/**]
+indent_size = unset
+insert_final_newline = unset
