@@ -36,6 +36,11 @@ ref/
 docs.json
 __dummy.html
 
+# Nix / direnv
+.direnv/
+result
+result-*
+
 # Code coverage
 *.lst
 game-engine-test-asset
