@@ -98,7 +98,9 @@ in
                 "--ignore-unknown"
                 "--write"
               ];
-              excludes = builtins.map lib.escapeRegex (generatedJsonFiles ++ handFormattedJson);
+              excludes = (builtins.map lib.escapeRegex (generatedJsonFiles ++ handFormattedJson)) ++ [
+                assetDataRegex
+              ];
             };
           };
 
