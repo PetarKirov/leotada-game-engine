@@ -58,15 +58,15 @@ source/
 
 ### Design Principles
 
-| Principle | Implementation |
-|:---|:---|
-| **Bevy-like ECS** | Sparse-set stores with compile-time `World!(Components...)` — no vtables, no runtime type lookup |
-| **`@safe` by default** | Every module is `@safe:` at top level. C interop wrapped in `@trusted` with minimal surface |
-| **Data-Oriented Design** | Components are POD structs in contiguous arrays. Entities are `uint` IDs |
-| **Zero-overhead abstractions** | Template systems resolved at compile time. RAII handles for GPU resources |
-| **GC discipline** | GC forbidden in engine frame loop (`@nogc`). Allowed in gameplay systems. Components enforce `isPod!T` / `Pod!T` — no GC pointers in engine storage |
-| **C interop that fits** | ImportC for Box3D headers; controlled `extern(C)` for SDL3/WGPU |
-| **Cross-platform** | SDL3 + WGPU on Linux (Wayland primary, X11 secondary) and Windows |
+| Principle                      | Implementation                                                                                                                                      |
+| :----------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Bevy-like ECS**              | Sparse-set stores with compile-time `World!(Components...)` — no vtables, no runtime type lookup                                                    |
+| **`@safe` by default**         | Every module is `@safe:` at top level. C interop wrapped in `@trusted` with minimal surface                                                         |
+| **Data-Oriented Design**       | Components are POD structs in contiguous arrays. Entities are `uint` IDs                                                                            |
+| **Zero-overhead abstractions** | Template systems resolved at compile time. RAII handles for GPU resources                                                                           |
+| **GC discipline**              | GC forbidden in engine frame loop (`@nogc`). Allowed in gameplay systems. Components enforce `isPod!T` / `Pod!T` — no GC pointers in engine storage |
+| **C interop that fits**        | ImportC for Box3D headers; controlled `extern(C)` for SDL3/WGPU                                                                                     |
+| **Cross-platform**             | SDL3 + WGPU on Linux (Wayland primary, X11 secondary) and Windows                                                                                   |
 
 ### ECS — Bevy-Class Performance in D
 
@@ -88,33 +88,33 @@ world.set(player, Velocity(1, 0, 0));
 
 ### GPU Stack
 
-| Layer | Technology | Purpose |
-|:---|:---|:---|
-| Window | SDL3 | Cross-platform window, events (Linux / Windows) |
-| GPU API | WGPU-native | Vulkan/Metal/DX12 via WebGPU abstraction |
-| Bindings | `extern(C)` | Direct C99 API for SDL3/WGPU — no bindbc |
-| Physics | Box3D + ImportC | Types from C headers; thin mangled D wrappers for calls |
-| Resources | RAII `Handle(T, releaseFn)` | Move-only GPU wrappers, deterministic release |
+| Layer     | Technology                  | Purpose                                                 |
+| :-------- | :-------------------------- | :------------------------------------------------------ |
+| Window    | SDL3                        | Cross-platform window, events (Linux / Windows)         |
+| GPU API   | WGPU-native                 | Vulkan/Metal/DX12 via WebGPU abstraction                |
+| Bindings  | `extern(C)`                 | Direct C99 API for SDL3/WGPU — no bindbc                |
+| Physics   | Box3D + ImportC             | Types from C headers; thin mangled D wrappers for calls |
+| Resources | RAII `Handle(T, releaseFn)` | Move-only GPU wrappers, deterministic release           |
 
 ### GC Policy — Engine vs Gameplay
 
 The engine uses a **two-layer GC model**, similar to Unity (C++ engine / C# gameplay) but within a single language:
 
-| Layer | GC | Who |
-|:---|:---|:---|
-| **Engine core** (`engine/`) | Forbidden — `@nogc` on all frame-loop functions | Engine developers |
-| **Gameplay** (systems, game logic) | Allowed by default — opt into `@nogc` for perf-critical systems | Game developers |
+| Layer                              | GC                                                              | Who               |
+| :--------------------------------- | :-------------------------------------------------------------- | :---------------- |
+| **Engine core** (`engine/`)        | Forbidden — `@nogc` on all frame-loop functions                 | Engine developers |
+| **Gameplay** (systems, game logic) | Allowed by default — opt into `@nogc` for perf-critical systems | Game developers   |
 
 **Component data is always strict** — `ComponentStore` enforces `isPod!T` at compile time (`Pod!T[]` dense storage), so the GC never scans dense arrays even with thousands of entities. **System logic is free** — gameplay code may allocate, use `string`, `format`, dynamic arrays, and closures. Developers who need maximum performance can mark individual systems `@nogc` and use pre-allocated buffers.
 
 #### GC-safe primitives (`engine.core`)
 
-| Primitive | Role |
-|:---|:---|
-| **`Pod!T` / `isPod!T`** | Compile-time gate: engine storage may not hold GC-traced indirections |
-| **`Handle!T`** | 8-byte generational ref (not the RAII GPU `Handle`) — replaces class pointers across the gameplay→engine boundary |
-| **`StringId` + `StringTable`** | Interned 4-byte string IDs — no `string` fields in long-lived engine data |
-| **`FrameArena`** | Per-frame bump allocator for scratch buffers and labels (`fmt`), reset in `endFrame()` |
+| Primitive                      | Role                                                                                                              |
+| :----------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| **`Pod!T` / `isPod!T`**        | Compile-time gate: engine storage may not hold GC-traced indirections                                             |
+| **`Handle!T`**                 | 8-byte generational ref (not the RAII GPU `Handle`) — replaces class pointers across the gameplay→engine boundary |
+| **`StringId` + `StringTable`** | Interned 4-byte string IDs — no `string` fields in long-lived engine data                                         |
+| **`FrameArena`**               | Per-frame bump allocator for scratch buffers and labels (`fmt`), reset in `endFrame()`                            |
 
 ```d
 // Gameplay system — GC is allowed, write naturally
@@ -229,6 +229,7 @@ void main() {
 1000 spinning cubes rendered with instanced drawing, directional N·L lighting, depth buffer, and a real-time FPS overlay using a bitmap font atlas. Runs at **~1800 FPS** on Linux/Vulkan (uncapped, mailbox present mode).
 
 Features demonstrated:
+
 - **Instanced rendering** — per-instance model matrices via vertex attributes (4×vec4)
 - **Depth buffer** — depth24Plus with clear-to-1.0
 - **WGSL shaders** — vertex transforms + directional lighting in fragment stage
@@ -307,13 +308,13 @@ Active plans and remaining work live under [`docs/`](docs/README.md). Overview: 
 
 Remaining work (see [`docs/roadmap.md`](docs/roadmap.md)):
 
-| # | Feature | Plan |
-|---:|:---|:---|
-| 1 | Skeletal animation + glTF skin | [docs/plan-animation.md](docs/plan-animation.md) |
-| 2 | Terrain + water editor | [docs/plan-terrain-water.md](docs/plan-terrain-water.md) |
-| 3 | Hot reload (assets + data) | [docs/plan-scripting-hot-reload.md](docs/plan-scripting-hot-reload.md) |
-| 4 | Parallel ECS scheduling | [docs/plan-parallel-ecs.md](docs/plan-parallel-ecs.md) |
-| 5 | Networking | [docs/plan-networking.md](docs/plan-networking.md) |
+|   # | Feature                        | Plan                                                                   |
+| --: | :----------------------------- | :--------------------------------------------------------------------- |
+|   1 | Skeletal animation + glTF skin | [docs/plan-animation.md](docs/plan-animation.md)                       |
+|   2 | Terrain + water editor         | [docs/plan-terrain-water.md](docs/plan-terrain-water.md)               |
+|   3 | Hot reload (assets + data)     | [docs/plan-scripting-hot-reload.md](docs/plan-scripting-hot-reload.md) |
+|   4 | Parallel ECS scheduling        | [docs/plan-parallel-ecs.md](docs/plan-parallel-ecs.md)                 |
+|   5 | Networking                     | [docs/plan-networking.md](docs/plan-networking.md)                     |
 
 The native Jolt (`engine.jph`) port was **cancelled** in favor of Box3D and
 removed from the tree. See [docs/physics-quickstart.md](docs/physics-quickstart.md),
