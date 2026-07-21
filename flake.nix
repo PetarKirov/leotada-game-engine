@@ -26,6 +26,7 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         ./nix/d-toolchain.nix
+        ./nix/packages/box3d.nix
         ./nix/shells/default.nix
       ];
       systems = import inputs.systems;
