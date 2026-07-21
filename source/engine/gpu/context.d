@@ -85,14 +85,72 @@ struct GpuContext {
         // 5. Queue
         ctx.queue = wgpuDeviceGetQueue(ctx.device);
 
-        // 6. Configure surface
-        ctx.surfaceFormat = WGPUTextureFormat.bgra8Unorm;
-        ctx.presentModeVal = presentMode;
+        // 6. Configure surface from adapter capabilities (format + present mode).
+        // Some environments only advertise Fifo; prefer the caller's mode when
+        // available, otherwise fall back rather than panicking in configure.
         ctx.surfW = width;
         ctx.surfH = height;
+        ctx.pickSurfaceConfig(presentMode);
         ctx.configureSurface();
 
         info("GPU context fully initialized");
+    }
+
+    /// Choose a supported surface format and present mode.
+    private void pickSurfaceConfig(WGPUPresentMode preferred) @trusted {
+        WGPUSurfaceCapabilities caps;
+        immutable st = wgpuSurfaceGetCapabilities(surface, adapter, &caps);
+        scope (exit) wgpuSurfaceCapabilitiesFreeMembers(caps);
+
+        surfaceFormat = WGPUTextureFormat.bgra8Unorm;
+        presentModeVal = WGPUPresentMode.fifo;
+
+        if (st == WGPUStatus.success && caps.formatCount > 0 && caps.formats !is null) {
+            // Prefer BGRA8 / RGBA8 unorm (sRGB variants second).
+            immutable preferredFmts = [
+                WGPUTextureFormat.bgra8Unorm,
+                WGPUTextureFormat.rgba8Unorm,
+                WGPUTextureFormat.bgra8UnormSrgb,
+                WGPUTextureFormat.rgba8UnormSrgb,
+            ];
+            bool found;
+            foreach (want; preferredFmts) {
+                foreach (i; 0 .. caps.formatCount) {
+                    if (caps.formats[i] == want) {
+                        surfaceFormat = want;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (!found)
+                surfaceFormat = caps.formats[0];
+        }
+
+        if (st == WGPUStatus.success && caps.presentModeCount > 0 && caps.presentModes !is null) {
+            immutable candidates = [
+                preferred,
+                WGPUPresentMode.mailbox,
+                WGPUPresentMode.fifoRelaxed,
+                WGPUPresentMode.fifo,
+            ];
+            bool found;
+            foreach (want; candidates) {
+                foreach (i; 0 .. caps.presentModeCount) {
+                    if (caps.presentModes[i] == want) {
+                        presentModeVal = want;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (!found)
+                presentModeVal = caps.presentModes[0];
+        } else {
+            presentModeVal = preferred;
+        }
     }
 
     private void configureSurface() @trusted {
