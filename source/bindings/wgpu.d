@@ -97,8 +97,8 @@ enum WGPUPowerPreference : uint {
     highPerformance = 0x0000_0002,
 }
 
+// webgpu.h has no Undefined sentinel for FeatureLevel — Compatibility/Core only.
 enum WGPUFeatureLevel : uint {
-    undefined     = 0x0000_0000,
     compatibility = 0x0000_0001,
     core          = 0x0000_0002,
 }
@@ -119,24 +119,30 @@ enum WGPUCompositeAlphaMode : uint {
     inherit_ = 0x0000_0004,
 }
 
+// Values must match webgpu.h / wgpu-native exactly (sparse subset of full enum).
 enum WGPUTextureFormat : uint {
-    undefined       = 0x0000_0000,
-    r8Unorm         = 0x0000_0001,
-    r8Snorm         = 0x0000_0002,
-    r8Uint          = 0x0000_0003,
-    r8Sint          = 0x0000_0004,
-    rg8Unorm        = 0x0000_000A,
-    rg8Snorm        = 0x0000_000B,
-    rgba8Unorm      = 0x0000_0016,
-    rgba8UnormSrgb  = 0x0000_0017,
-    rgba8Snorm      = 0x0000_0018,
-    bgra8Unorm      = 0x0000_001B,
-    bgra8UnormSrgb  = 0x0000_001C,
-    rgba16Float     = 0x0000_0028, // WGPUTextureFormat_RGBA16Float
-    depth24Plus            = 0x0000_002E,
-    depth24PlusStencil8    = 0x0000_002F,
-    depth32Float           = 0x0000_0030,
-    depth32FloatStencil8   = 0x0000_0031,
+    undefined              = 0x0000_0000,
+    r8Unorm                = 0x0000_0001,
+    r8Snorm                = 0x0000_0002,
+    r8Uint                 = 0x0000_0003,
+    r8Sint                 = 0x0000_0004,
+    rg8Unorm               = 0x0000_0008,
+    rg8Snorm               = 0x0000_0009,
+    rg8Uint                = 0x0000_000A,
+    rg8Sint                = 0x0000_000B,
+    rgba8Unorm             = 0x0000_0012,
+    rgba8UnormSrgb         = 0x0000_0013,
+    rgba8Snorm             = 0x0000_0014,
+    rgba8Uint              = 0x0000_0015,
+    rgba8Sint              = 0x0000_0016,
+    bgra8Unorm             = 0x0000_0017,
+    bgra8UnormSrgb         = 0x0000_0018,
+    rgba16Float            = 0x0000_0022,
+    depth16Unorm           = 0x0000_0027,
+    depth24Plus            = 0x0000_0028,
+    depth24PlusStencil8    = 0x0000_0029,
+    depth32Float           = 0x0000_002A,
+    depth32FloatStencil8   = 0x0000_002B,
 }
 
 enum WGPUTextureUsage : WGPUFlags {
@@ -213,10 +219,12 @@ enum WGPUVertexFormat : uint {
     unorm8x4  = 0x0000_0009,
 }
 
+// VertexBufferNotUsed is the hole/sentinel at 0 (webgpu.h v22+).
 enum WGPUVertexStepMode : uint {
-    undefined = 0x0000_0000,
-    vertex    = 0x0000_0001,
-    instance_ = 0x0000_0002,
+    vertexBufferNotUsed = 0x0000_0000,
+    undefined           = 0x0000_0001,
+    vertex              = 0x0000_0002,
+    instance_           = 0x0000_0003,
 }
 
 enum WGPUColorWriteMask : WGPUFlags {
@@ -276,16 +284,18 @@ enum WGPUTextureDimension : uint {
 }
 
 enum WGPURequestAdapterStatus : uint {
-    success           = 0x0000_0001,
-    callbackCancelled = 0x0000_0002,
-    unavailable       = 0x0000_0003,
-    error             = 0x0000_0004,
+    success          = 0x0000_0001,
+    instanceDropped  = 0x0000_0002,
+    unavailable      = 0x0000_0003,
+    error            = 0x0000_0004,
+    unknown          = 0x0000_0005,
 }
 
 enum WGPURequestDeviceStatus : uint {
-    success           = 0x0000_0001,
-    callbackCancelled = 0x0000_0002,
-    error             = 0x0000_0003,
+    success         = 0x0000_0001,
+    instanceDropped = 0x0000_0002,
+    error           = 0x0000_0003,
+    unknown         = 0x0000_0004,
 }
 
 enum WGPUSurfaceGetCurrentTextureStatus : uint {
@@ -294,7 +304,9 @@ enum WGPUSurfaceGetCurrentTextureStatus : uint {
     timeout           = 0x0000_0003,
     outdated          = 0x0000_0004,
     lost              = 0x0000_0005,
-    error             = 0x0000_0006,
+    outOfMemory       = 0x0000_0006,
+    deviceLost        = 0x0000_0007,
+    error             = 0x0000_0008,
 }
 
 enum WGPUCallbackMode : uint {
@@ -304,10 +316,10 @@ enum WGPUCallbackMode : uint {
 }
 
 enum WGPUDeviceLostReason : uint {
-    unknown           = 0x0000_0001,
-    destroyed         = 0x0000_0002,
-    callbackCancelled = 0x0000_0003,
-    failedCreation    = 0x0000_0004,
+    unknown          = 0x0000_0001,
+    destroyed        = 0x0000_0002,
+    instanceDropped  = 0x0000_0003,
+    failedCreation   = 0x0000_0004,
 }
 
 enum WGPUErrorType : uint {
@@ -475,11 +487,16 @@ struct WGPUFuture {
     ulong id = 0;
 }
 
+// Matches webgpu.h: features are WGPUInstanceCapabilities, not a free-form list.
+struct WGPUInstanceCapabilities {
+    WGPUChainedStruct* nextInChain; // WGPUChainedStructOut* in C; pointer-sized either way
+    WGPUBool timedWaitAnyEnable = WGPU_FALSE;
+    size_t timedWaitAnyMaxCount = 0;
+}
+
 struct WGPUInstanceDescriptor {
     WGPUChainedStruct* nextInChain;
-    size_t requiredFeatureCount = 0;
-    void* requiredFeatures;
-    void* requiredLimits;
+    WGPUInstanceCapabilities features;
 }
 
 struct WGPUSurfaceDescriptor {
@@ -501,7 +518,8 @@ struct WGPUSurfaceSourceXlibWindow {
 
 struct WGPURequestAdapterOptions {
     WGPUChainedStruct* nextInChain;
-    WGPUFeatureLevel featureLevel = WGPUFeatureLevel.undefined;
+    // Required by webgpu.h — must be Compatibility or Core (no Undefined).
+    WGPUFeatureLevel featureLevel = WGPUFeatureLevel.core;
     WGPUPowerPreference powerPreference = WGPUPowerPreference.undefined;
     WGPUBool forceFallbackAdapter = WGPU_FALSE;
     WGPUBackendType backendType = WGPUBackendType.undefined;
@@ -628,8 +646,8 @@ struct WGPURenderPassDescriptor {
     void* timestampWrites;
 }
 
+// No nextInChain in webgpu.h — first field is `view` (ABI-critical).
 struct WGPURenderPassDepthStencilAttachment {
-    WGPUChainedStruct* nextInChain;
     WGPUTextureView view;
     WGPULoadOp depthLoadOp = WGPULoadOp.undefined;
     WGPUStoreOp depthStoreOp = WGPUStoreOp.undefined;
@@ -681,15 +699,14 @@ struct WGPUFragmentState {
     const(WGPUColorTargetState)* targets;
 }
 
+// No nextInChain in webgpu.h — field order is ABI-critical.
 struct WGPUVertexAttribute {
-    WGPUChainedStruct* nextInChain;
     WGPUVertexFormat format;
     ulong offset;
     uint shaderLocation;
 }
 
 struct WGPUVertexBufferLayout {
-    WGPUChainedStruct* nextInChain;
     WGPUVertexStepMode stepMode = WGPUVertexStepMode.undefined;
     ulong arrayStride;
     size_t attributeCount = 0;
@@ -759,7 +776,6 @@ struct WGPUPipelineLayoutDescriptor {
     WGPUStringView label;
     size_t bindGroupLayoutCount = 0;
     const(WGPUBindGroupLayout)* bindGroupLayouts;
-    uint immediateSize = 0;
 }
 
 // --- Buffer ---
@@ -832,7 +848,6 @@ struct WGPUBindGroupLayoutEntry {
     WGPUChainedStruct* nextInChain;
     uint binding = 0;
     WGPUShaderStage visibility = WGPUShaderStage.none;
-    uint bindingArraySize = 0;
     WGPUBufferBindingLayout buffer;
     WGPUSamplerBindingLayout sampler;
     WGPUTextureBindingLayout texture;
