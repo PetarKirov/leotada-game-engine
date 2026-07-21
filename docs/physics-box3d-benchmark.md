@@ -24,9 +24,9 @@ The JPH baseline was measured from the pre-migration `HEAD` in a temporary workt
 ## LDC2 Release Results
 
 | Physics backend | Avg FPS | Max GC pause | GC collections | Total GC pause |
-|---|---:|---:|---:|---:|
-| JPH D port | 799.3 | 1.8 ms | 199 | 40.1 ms |
-| Box3D | 3514.1 | 0.8 ms | 826 | 120.5 ms |
+| --------------- | ------: | -----------: | -------------: | -------------: |
+| JPH D port      |   799.3 |       1.8 ms |            199 |        40.1 ms |
+| Box3D           |  3514.1 |       0.8 ms |            826 |       120.5 ms |
 
 Box3D is approximately **4.4x faster** in the LDC2 release benchmark.
 
@@ -43,9 +43,9 @@ dub run --compiler=dmd --config=benchmark --build=release --force
 ## DMD Release Results
 
 | Physics backend | Avg FPS | Max GC pause | GC collections | Total GC pause |
-|---|---:|---:|---:|---:|
-| JPH D port | 100.5 | 0.7 ms | 25 | 6.4 ms |
-| Box3D | 2991.1 | 0.7 ms | 703 | 118.9 ms |
+| --------------- | ------: | -----------: | -------------: | -------------: |
+| JPH D port      |   100.5 |       0.7 ms |             25 |         6.4 ms |
+| Box3D           |  2991.1 |       0.7 ms |            703 |       118.9 ms |
 
 Box3D is approximately **29.8x faster** in the DMD release benchmark.
 

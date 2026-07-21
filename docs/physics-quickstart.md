@@ -29,14 +29,14 @@ transforms before step).
 
 ## Bodies and shapes
 
-| Helper | Motion |
-|:---|:---|
-| `createStaticBox` / `createKinematicBox` / `createDynamicBox` | box (hull) |
-| `createStaticSphere` / `createKinematicSphere` / `createDynamicSphere` | sphere |
-| `createStaticCapsule` / `createDynamicCapsule` / `createSensorCapsule` | capsule (Y axis) |
-| `createStaticCylinder` / `createDynamicCylinder` | cylinder hull |
-| `createSensorBox` | static sensor box |
-| `createGroundSlab` | large static floor |
+| Helper                                                                 | Motion             |
+| :--------------------------------------------------------------------- | :----------------- |
+| `createStaticBox` / `createKinematicBox` / `createDynamicBox`          | box (hull)         |
+| `createStaticSphere` / `createKinematicSphere` / `createDynamicSphere` | sphere             |
+| `createStaticCapsule` / `createDynamicCapsule` / `createSensorCapsule` | capsule (Y axis)   |
+| `createStaticCylinder` / `createDynamicCylinder`                       | cylinder hull      |
+| `createSensorBox`                                                      | static sensor box  |
+| `createGroundSlab`                                                     | large static floor |
 
 Pass an optional `EntityId` to map bodies to ECS entities (stored in Box3D
 userData). Recover with `getBodyEntity` / `getShapeEntity`.
@@ -98,10 +98,10 @@ player.move(world, wishDir, dt, jumpPressed);
 
 ## Demos
 
-| Demo / config | Teaches |
-|:---|:---|
-| `dub run --config=pong3d` | kinematic paddles, sensors, hits, zero gravity |
-| `dub run --config=marble-run` | dynamics, impulses, sensors |
+| Demo / config                         | Teaches                                                                  |
+| :------------------------------------ | :----------------------------------------------------------------------- |
+| `dub run --config=pong3d`             | kinematic paddles, sensors, hits, zero gravity                           |
+| `dub run --config=marble-run`         | dynamics, impulses, sensors                                              |
 | `dub run --config=test-physics-box3d` | headless smoke: stack, sensors, ray, capsule, overlap, joints, character |
 
 ## Rules of thumb

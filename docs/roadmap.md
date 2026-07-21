@@ -13,18 +13,18 @@ Ordem por **desbloqueio**: jogabilidade → higiene GC → visual (fechar
 infra de sombra, depois polish) → conteúdo animado → tooling de iteração
 → escala.
 
-| # | Feature | Doc | Prioridade | Dependências / por quê nesta posição |
-|---:|:---|:---|:---|:---|
-| 1 | API física gameplay (Box3D) | [plan-physics-api.md](plan-physics-api.md) · [physics-quickstart.md](physics-quickstart.md) | **feito** (P5 mesh adiado) | Base de gameplay; demos `pong3d`, etc. |
-| 2 | Fechar GC-safe (adoção + lint) | [gc-safe-architecture-plan.md](gc-safe-architecture-plan.md) | **feito** (#9 Handle API adiado) | Storage POD + lint |
-| 3 | PBR + amostragem de sombra | [plan-pbr.md](plan-pbr.md) | **feito** (PBR-0–5) | Textured path: GGX + IBL + PCF; demo `pbr` |
-| 4 | Pós-processamento | [plan-post-processing.md](plan-post-processing.md) | **feito** (PP-1–6) | HDR offscreen + bloom + ACES + FXAA; `App.post` |
-| 5 | Animação skeletal | [plan-animation.md](plan-animation.md) | média | glTF loader; poses em storage engine = `isPod` |
-| 6 | Editor de cena / level design | [plan-editor-ux.md](plan-editor-ux.md) | **feito** (v1) | `dub run --config=editor`; multi-luz c/ sombra; hull+mesh; `*.asset.json` + `*.scene.json`; multi-select + undo |
-| 7 | Editor de terreno e água | [plan-terrain-water.md](plan-terrain-water.md) | média | Depois do editor de cena; heightfield (P5); brushes + water plane |
-| 8 | Hot reload (assets + dados) | [plan-scripting-hot-reload.md](plan-scripting-hot-reload.md) | média | Iteração diária (editor/assets); antes de escala |
-| 9 | ECS paralelo | [plan-parallel-ecs.md](plan-parallel-ecs.md) | baixa | API serial estável; opt-in |
-| 10 | Networking | [plan-networking.md](plan-networking.md) | baixa | `engine.ser` + física estável |
+|   # | Feature                        | Doc                                                                                         | Prioridade                       | Dependências / por quê nesta posição                                                                            |
+| --: | :----------------------------- | :------------------------------------------------------------------------------------------ | :------------------------------- | :-------------------------------------------------------------------------------------------------------------- |
+|   1 | API física gameplay (Box3D)    | [plan-physics-api.md](plan-physics-api.md) · [physics-quickstart.md](physics-quickstart.md) | **feito** (P5 mesh adiado)       | Base de gameplay; demos `pong3d`, etc.                                                                          |
+|   2 | Fechar GC-safe (adoção + lint) | [gc-safe-architecture-plan.md](gc-safe-architecture-plan.md)                                | **feito** (#9 Handle API adiado) | Storage POD + lint                                                                                              |
+|   3 | PBR + amostragem de sombra     | [plan-pbr.md](plan-pbr.md)                                                                  | **feito** (PBR-0–5)              | Textured path: GGX + IBL + PCF; demo `pbr`                                                                      |
+|   4 | Pós-processamento              | [plan-post-processing.md](plan-post-processing.md)                                          | **feito** (PP-1–6)               | HDR offscreen + bloom + ACES + FXAA; `App.post`                                                                 |
+|   5 | Animação skeletal              | [plan-animation.md](plan-animation.md)                                                      | média                            | glTF loader; poses em storage engine = `isPod`                                                                  |
+|   6 | Editor de cena / level design  | [plan-editor-ux.md](plan-editor-ux.md)                                                      | **feito** (v1)                   | `dub run --config=editor`; multi-luz c/ sombra; hull+mesh; `*.asset.json` + `*.scene.json`; multi-select + undo |
+|   7 | Editor de terreno e água       | [plan-terrain-water.md](plan-terrain-water.md)                                              | média                            | Depois do editor de cena; heightfield (P5); brushes + water plane                                               |
+|   8 | Hot reload (assets + dados)    | [plan-scripting-hot-reload.md](plan-scripting-hot-reload.md)                                | média                            | Iteração diária (editor/assets); antes de escala                                                                |
+|   9 | ECS paralelo                   | [plan-parallel-ecs.md](plan-parallel-ecs.md)                                                | baixa                            | API serial estável; opt-in                                                                                      |
+|  10 | Networking                     | [plan-networking.md](plan-networking.md)                                                    | baixa                            | `engine.ser` + física estável                                                                                   |
 
 ### Notas de ordem
 

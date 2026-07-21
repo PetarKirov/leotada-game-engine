@@ -49,22 +49,22 @@ A engine usa **WGPU-native** como abstração GPU e **SDL3** para janelas/evento
 
 ### Quando usar cada camada
 
-| Quero... | Usar |
-|:---|:---|
-| Desenhar objetos 3D coloridos | `Scene3D` + `Mesh` + `Camera` |
-| Desenhar objetos 3D com texturas | `Scene3DTextured` + `TexMesh` + `Material` |
-| Hierarquia de transforms (planetas, luas, juntas) | `SceneGraph` |
-| Câmera orbital / voo livre / FPS | `engine.scene.controllers` |
-| Sombras direcionais | `ShadowMap` + pipeline texturizado |
-| Carregar BMP / glTF do disco | `engine.assets.bmp`, `engine.assets.gltf` |
-| Tocar WAV / efeitos sonoros | `engine.audio.engine` |
-| Texto HUD | `TextRenderer` |
-| Debug: linhas 3D, grid, eixos | `engine.devtools.gizmos` |
-| Debug: FPS + labels estruturados | `engine.devtools.overlay` |
-| Criar formas personalizadas | `Mesh.fromData` + `Vert` |
-| Pipeline/shader customizado | `engine.gpu.pipeline`, `engine.gpu.shader` |
-| Controle direto de buffers | `engine.gpu.buffer` |
-| Chamadas WGPU brutas | `bindings.wgpu` |
+| Quero...                                          | Usar                                       |
+| :------------------------------------------------ | :----------------------------------------- |
+| Desenhar objetos 3D coloridos                     | `Scene3D` + `Mesh` + `Camera`              |
+| Desenhar objetos 3D com texturas                  | `Scene3DTextured` + `TexMesh` + `Material` |
+| Hierarquia de transforms (planetas, luas, juntas) | `SceneGraph`                               |
+| Câmera orbital / voo livre / FPS                  | `engine.scene.controllers`                 |
+| Sombras direcionais                               | `ShadowMap` + pipeline texturizado         |
+| Carregar BMP / glTF do disco                      | `engine.assets.bmp`, `engine.assets.gltf`  |
+| Tocar WAV / efeitos sonoros                       | `engine.audio.engine`                      |
+| Texto HUD                                         | `TextRenderer`                             |
+| Debug: linhas 3D, grid, eixos                     | `engine.devtools.gizmos`                   |
+| Debug: FPS + labels estruturados                  | `engine.devtools.overlay`                  |
+| Criar formas personalizadas                       | `Mesh.fromData` + `Vert`                   |
+| Pipeline/shader customizado                       | `engine.gpu.pipeline`, `engine.gpu.shader` |
+| Controle direto de buffers                        | `engine.gpu.buffer`                        |
+| Chamadas WGPU brutas                              | `bindings.wgpu`                            |
 
 ## WGPU-native
 
@@ -234,11 +234,11 @@ Vertex shader para quads de texto com coordenadas de tela. Fragment shader amost
 
 ### Formatos de imagem suportados
 
-| Formato | Módulo | Observações |
-|:---|:---|:---|
-| TGA (não comprimido) | `engine.graphics.texture` | 24/32-bpp, loader minimalista |
-| BMP (24/32-bpp, não comprimido) | `engine.assets.bmp` | Inverte verticalmente a ordem das linhas |
-| glTF 2.0 (mesh + PBR) | `engine.assets.gltf` | `loadGltfMesh` / `loadGltfPbr`; sem skin/anim/`.glb` |
+| Formato                         | Módulo                    | Observações                                          |
+| :------------------------------ | :------------------------ | :--------------------------------------------------- |
+| TGA (não comprimido)            | `engine.graphics.texture` | 24/32-bpp, loader minimalista                        |
+| BMP (24/32-bpp, não comprimido) | `engine.assets.bmp`       | Inverte verticalmente a ordem das linhas             |
+| glTF 2.0 (mesh + PBR)           | `engine.assets.gltf`      | `loadGltfMesh` / `loadGltfPbr`; sem skin/anim/`.glb` |
 
 ## SceneGraph
 
@@ -253,11 +253,11 @@ Hierarquia de transforms para objetos compostos (planetas e luas, corpo + membro
 
 `engine/scene/controllers.d` oferece três controladores prontos para uso:
 
-| Controller | Entrada | Uso típico |
-|:---|:---|:---|
-| `OrbitCamera` | mouse drag + scroll | editor, model viewer, RTS |
-| `FlyCamera` | WASD + mouse look | debug, showcase |
-| `FirstPersonCamera` | WASD + mouse look + gravidade opcional | gameplay FPS |
+| Controller          | Entrada                                | Uso típico                |
+| :------------------ | :------------------------------------- | :------------------------ |
+| `OrbitCamera`       | mouse drag + scroll                    | editor, model viewer, RTS |
+| `FlyCamera`         | WASD + mouse look                      | debug, showcase           |
+| `FirstPersonCamera` | WASD + mouse look + gravidade opcional | gameplay FPS              |
 
 Todos atualizam a `Camera` interna via `lookAt` — são controllers, não câmeras em si.
 

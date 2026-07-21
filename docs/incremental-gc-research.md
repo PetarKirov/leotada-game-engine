@@ -18,7 +18,7 @@ implementation.
 
 D's only production GC is `class ConservativeGC : GC` in
 [ref/dmd/druntime/src/core/internal/gc/impl/conservative/gc.d](../ref/dmd/druntime/src/core/internal/gc/impl/conservative/gc.d).
-It is a stop-the-world, mark-sweep collector. It can be made *precise*
+It is a stop-the-world, mark-sweep collector. It can be made _precise_
 (typeinfo-driven pointer bitmaps) via `GC.Config.precise`, and it can run mark
 in parallel (`GC.Config.parallel`) or concurrently in a forked child process
 (`GC.Config.fork`). It is **not** incremental: mark always completes in a
@@ -33,8 +33,8 @@ Two facts shape the rest of this analysis:
 2. **This engine already enforces a two-layer GC policy** (see
    [AGENTS.md](../AGENTS.md), section "GC Policy — Two Layers"). The frame
    path inside `engine/` is `@nogc`; components have no indirections so the
-   GC never scans them. *Pause risk is purely a function of gameplay-layer
-   allocations.* For a typical D game built on this engine, total GC heap
+   GC never scans them. _Pause risk is purely a function of gameplay-layer
+   allocations._ For a typical D game built on this engine, total GC heap
    stays small (order of MB, not GB) and collection frequency is dominated
    by gameplay choices, not engine code.
 
@@ -56,7 +56,7 @@ Concretely, DMD would need:
   layer used by the front end) for "pointer store".
 - Codegen for x86_64, aarch64 (and ideally LDC/GDC parity through the same
   front-end IR).
-- Optimization passes to *elide* the barrier when the destination is provably
+- Optimization passes to _elide_ the barrier when the destination is provably
   on the stack, in `@nogc` code, in a TLS scalar field, or to a non-pointer
   type. Without elision, the throughput regression is unacceptable.
 - ABI compatibility: existing object files compiled without barriers must
@@ -139,6 +139,7 @@ Combine with `GC.Config.parallel = N` and the fork child can also use
 multiple threads internally.
 
 **Action items (POSIX):**
+
 1. Set `extern(C) __gshared string rt_options = ["gcopt=fork:1 parallel:8 precise:1"];`
    in the engine's executable entry points.
 2. Measure `GC.profileStats().maxCollectionTime` on `dub run --config=benchmark`
@@ -154,7 +155,7 @@ This is a configuration change. Zero forks of any toolchain.
 does not share or copy-on-write the parent's address space.
 
 Without barriers and without fork, the only way to interrupt mark mid-cycle
-*safely* is to take a stable snapshot of the heap so the marker can scan
+_safely_ is to take a stable snapshot of the heap so the marker can scan
 old pointer values while the mutator races ahead. The standard technique is:
 
 1. Mark all GC heap pages **read-only** with `VirtualProtect(PAGE_READONLY)`.
@@ -272,8 +273,8 @@ struct FrameGcScheduler
 - **Pause when not collecting:** zero — the GC is disabled.
 - **Mean pause across frames:** dramatically lower because collection is
   amortized to scene transitions and frames with measured slack.
-- **Worst-case pause:** unchanged. The scheduler controls *when*, not
-  *how long*.
+- **Worst-case pause:** unchanged. The scheduler controls _when_, not
+  _how long_.
 
 ### 4.3 Combine with existing engine policy
 
@@ -287,7 +288,7 @@ the scheduler:
 
 ### 4.4 Verdict
 
-Highest value for effort. Days of work. Will *not* meet the 2 ms budget
+Highest value for effort. Days of work. Will _not_ meet the 2 ms budget
 during an actual collection cycle, but will keep collections out of frames
 where the player would notice. Recommended as the immediate first step.
 
@@ -295,11 +296,11 @@ where the player would notice. Recommended as the immediate first step.
 
 ## 5. Comparison matrix
 
-| Approach | Achieves ≤ 2 ms? | Effort | Cross-platform | Forks toolchain? |
-|---|---|---|---|---|
-| **A** Full incremental (DMD barriers + tri-color) | Yes — true sub-ms slices | Multi-month, multi-engineer | Yes (after compiler work) | DMD (and LDC/GDC) |
-| **B** Soft incremental in druntime | POSIX yes; Windows hard, ~3–10 ms with COW snapshot | POSIX: trivial config; Windows COW: months | Partial | druntime fork |
-| **C** Engine-side frame scheduler | No (between collections only) | Days | Yes | No |
+| Approach                                          | Achieves ≤ 2 ms?                                    | Effort                                     | Cross-platform            | Forks toolchain?  |
+| ------------------------------------------------- | --------------------------------------------------- | ------------------------------------------ | ------------------------- | ----------------- |
+| **A** Full incremental (DMD barriers + tri-color) | Yes — true sub-ms slices                            | Multi-month, multi-engineer                | Yes (after compiler work) | DMD (and LDC/GDC) |
+| **B** Soft incremental in druntime                | POSIX yes; Windows hard, ~3–10 ms with COW snapshot | POSIX: trivial config; Windows COW: months | Partial                   | druntime fork     |
+| **C** Engine-side frame scheduler                 | No (between collections only)                       | Days                                       | Yes                       | No                |
 
 ---
 
@@ -316,7 +317,7 @@ Stack the cheap wins; escalate only on measured evidence.
    If max pause is already under 2 ms on Linux/macOS, no further work is
    needed there.
 3. **Defer the Windows COW-snapshot piece** until Windows is a confirmed
-   shipping target *and* measurements prove Windows pauses are a real
+   shipping target _and_ measurements prove Windows pauses are a real
    problem. This is the only Approach B work item that is not free.
 4. **Do not pursue Approach A.** A DMD fork is not justified for one engine.
    Reconsider only if the D community contributes upstream barrier support
@@ -340,12 +341,12 @@ Reference: option parsing lives in
 `ref/dmd/druntime/src/core/internal/gc/impl/conservative/gc.d` near the
 `config` struct (search "fork" / "parallel" / "precise"). Field meanings:
 
-| Option | Effect |
-|---|---|
-| `fork:1` | Concurrent mark in a forked child (POSIX only). Pause becomes ~`fork()` syscall + thread suspend window. |
+| Option       | Effect                                                                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fork:1`     | Concurrent mark in a forked child (POSIX only). Pause becomes ~`fork()` syscall + thread suspend window.                                    |
 | `parallel:N` | Use N worker threads for mark. See `markParallel()` at [gc.d#L3575](../ref/dmd/druntime/src/core/internal/gc/impl/conservative/gc.d#L3575). |
-| `precise:1` | Use compiler-emitted pointer bitmaps for mark. Reduces conservative false-retention. |
-| `profile:1` | Print collection stats on shutdown via `Gcx.Dtor`. |
+| `precise:1`  | Use compiler-emitted pointer bitmaps for mark. Reduces conservative false-retention.                                                        |
+| `profile:1`  | Print collection stats on shutdown via `Gcx.Dtor`.                                                                                          |
 
 Per-process override at runtime:
 
@@ -357,7 +358,7 @@ DRT_GCOPT="fork:1 parallel:8 precise:1 profile:1" ./bin/game-engine-benchmark
 
 The Approach C sketch above is the reference. Two things to remember:
 
-- `GC.disable()` only stops *automatic* collection; explicit `GC.collect()`
+- `GC.disable()` only stops _automatic_ collection; explicit `GC.collect()`
   still runs.
 - `GC.stats` is cheap (atomic loads) and safe to call every frame.
 - `GC.minimize()` returns memory to the OS — useful at scene transitions,
@@ -404,11 +405,11 @@ DRT_GCOPT="profile:1 precise:1 fork:1 parallel:8" \
 Sample output on this engine's workload (1200 frames, debug build, DMD,
 Linux x86_64):
 
-| mode      | mean   | p99    | max    | GC collections | heap delta |
-|-----------|--------|--------|--------|----------------|------------|
-| default   | 0.031ms| 0.054ms| 0.573ms| 4              | +6.4 MB    |
-| scheduler | 0.033ms| 0.052ms| 0.411ms| 1              | +16.7 MB   |
-| disabled  | 0.030ms| 0.049ms| 0.335ms| 1              | +16.7 MB   |
+| mode      | mean    | p99     | max     | GC collections | heap delta |
+| --------- | ------- | ------- | ------- | -------------- | ---------- |
+| default   | 0.031ms | 0.054ms | 0.573ms | 4              | +6.4 MB    |
+| scheduler | 0.033ms | 0.052ms | 0.411ms | 1              | +16.7 MB   |
+| disabled  | 0.030ms | 0.049ms | 0.335ms | 1              | +16.7 MB   |
 
 Two takeaways:
 
@@ -418,7 +419,7 @@ Two takeaways:
    Approaches A/B/C.
 2. **The scheduler trades higher heap retention for lower max pause**
    by deferring collection to scene transitions / slack frames. It does
-   not eliminate STW; it *delays* it.
+   not eliminate STW; it _delays_ it.
 
 #### Heavy scenario: open-world action game
 
@@ -427,7 +428,7 @@ aggressive allocation pattern: 512 active NPCs with per-tick AI decision
 arrays, 64 nearest-NPC HUD strings, a 256-line dialog/loot/event queue per
 frame, 32 particle-burst float arrays, a 256 KB streamed terrain chunk
 every 4 frames, and a 1 MB event-log dump every 120 frames. Live working
-set settles around 30–50 MB, with ~1–2 MB allocated *per frame*.
+set settles around 30–50 MB, with ~1–2 MB allocated _per frame_.
 
 ```bash
 DRT_GCOPT="profile:1 precise:1" \
@@ -438,12 +439,12 @@ DRT_GCOPT="profile:1 precise:1 fork:1 parallel:8" \
 
 Sample output (1200 frames, debug build, DMD, Linux x86_64):
 
-| mode (openworld)     | mean   | p99    | max    | GC collections | heap delta |
-|----------------------|--------|--------|--------|----------------|------------|
-| default              | 0.785ms| 1.204ms| 1.487ms| 20             | +33.9 MB   |
-| scheduler            | 0.762ms| 1.264ms| 1.832ms|  9             | +34.0 MB   |
-| disabled (no GC)     | 0.840ms| 1.239ms| 1.975ms|  1             | +432.1 MB  |
-| default + fork:1 par:8 (3000 frames) | 0.754ms| 1.144ms| 1.967ms| 31 | +38.6 MB |
+| mode (openworld)                     | mean    | p99     | max     | GC collections | heap delta |
+| ------------------------------------ | ------- | ------- | ------- | -------------- | ---------- |
+| default                              | 0.785ms | 1.204ms | 1.487ms | 20             | +33.9 MB   |
+| scheduler                            | 0.762ms | 1.264ms | 1.832ms | 9              | +34.0 MB   |
+| disabled (no GC)                     | 0.840ms | 1.239ms | 1.975ms | 1              | +432.1 MB  |
+| default + fork:1 par:8 (3000 frames) | 0.754ms | 1.144ms | 1.967ms | 31             | +38.6 MB   |
 
 Open-world takeaways:
 
@@ -453,7 +454,7 @@ Open-world takeaways:
 2. **Allocation cost dominates GC cost.** Per-frame mean rises from
    ~0.03 ms (light) to ~0.78 ms (openworld) primarily because of the
    allocator path itself, not the collector — the `disabled` mode (no GC)
-   is *slowest*, because heap fragmentation grows unbounded.
+   is _slowest_, because heap fragmentation grows unbounded.
 3. **The scheduler more than halves collection count** (20 → 9) without
    regressing tail latency, confirming Approach C is a useful smoothing
    tool even at this pressure.
@@ -463,7 +464,7 @@ Open-world takeaways:
 
 #### Worst-case scenario (`--worst`)
 
-To stress-test the conservative collector against a *pointer-rich* object
+To stress-test the conservative collector against a _pointer-rich_ object
 graph, the benchmark also ships a `--worst` scenario:
 
 - **4096 NPC class instances** with class-typed `target` cross-references,
@@ -475,7 +476,7 @@ graph, the benchmark also ships a `--worst` scenario:
 - **1024 transient short strings per frame** (hot allocator path).
 
 Live heap settles around 60–100 MB, allocation rate ~3–5 MB/frame, and
-*every byte* of the working set must be scanned by the conservative mark.
+_every byte_ of the working set must be scanned by the conservative mark.
 
 ```bash
 DRT_GCOPT="profile:1 precise:1" \
@@ -486,12 +487,12 @@ DRT_GCOPT="profile:1 precise:1 fork:1 parallel:8" \
 
 Sample output (1200 frames, debug build, DMD, Linux x86_64):
 
-| mode (worst)         | mean    | p99     | max     | GC collections | total pause | heap delta |
-|----------------------|---------|---------|---------|----------------|-------------|------------|
-| default              |  6.55ms | 12.84ms | 16.72ms | 40             | 195.5ms     | +63.4 MB   |
-| scheduler            |  7.14ms | 12.84ms | 18.09ms | 111            | 524.9ms     |  +4.5 MB   |
-| disabled (no GC)     |  6.67ms |  9.37ms | 12.60ms |  1             |   4.2ms     | +1.77 GB   |
-| default + fork:1 par:8 |  6.87ms | 13.14ms | 15.10ms | 40           | 193.2ms     | +63.4 MB   |
+| mode (worst)           | mean   | p99     | max     | GC collections | total pause | heap delta |
+| ---------------------- | ------ | ------- | ------- | -------------- | ----------- | ---------- |
+| default                | 6.55ms | 12.84ms | 16.72ms | 40             | 195.5ms     | +63.4 MB   |
+| scheduler              | 7.14ms | 12.84ms | 18.09ms | 111            | 524.9ms     | +4.5 MB    |
+| disabled (no GC)       | 6.67ms | 9.37ms  | 12.60ms | 1              | 4.2ms       | +1.77 GB   |
+| default + fork:1 par:8 | 6.87ms | 13.14ms | 15.10ms | 40             | 193.2ms     | +63.4 MB   |
 
 Worst-case takeaways:
 
@@ -507,14 +508,14 @@ Worst-case takeaways:
 3. **`fork:1 parallel:8` (Approach B) barely helps here.** Total pause is
    essentially identical to the default — the fork-based collector still
    pauses for the root scan and write-barrier setup, and the workload's
-   cost is dominated by the *concurrent* mark phase that already runs
+   cost is dominated by the _concurrent_ mark phase that already runs
    off-thread. The gain comes mostly from heaps that allocate **during**
    the mark, which this scenario does, but at this allocation rate the
    wins are within noise.
 4. **Approach C (scheduler) backfires under sustained pressure.** Forced
    collections at every slack window keep the heap small (+4.5 MB delta!),
    but pay 111 collections × ~5 ms = ~525 ms of pause across the run, vs
-   ~195 ms for letting druntime decide. Approach C is a *smoothing* tool,
+   ~195 ms for letting druntime decide. Approach C is a _smoothing_ tool,
    not a budget-saver — it works when the heap is mostly cold and slack
    is abundant. Under continuous heavy mutation it makes things worse.
 5. **The pointer-free component policy in `engine/` is doing real work.**
@@ -529,7 +530,7 @@ Worst-case takeaways:
 
 > **Practical recommendation.** If a future game hits this pattern —
 > dense object graphs, pointer-bearing streamed buffers, multi-megabyte
-> per-frame allocation — first audit whether those allocations *need* GC
+> per-frame allocation — first audit whether those allocations _need_ GC
 > pointers at all. Replacing class graphs with handle/ID indirection and
 > pointer-free struct buffers (the engine's existing pattern) collapses
 > mark cost back to the openworld numbers (<2 ms max pause) without any
@@ -546,13 +547,13 @@ same logical workload as `--worst` (4096 NPCs, AI tick, inventory chain,
 terrain streaming, 1024 transient strings/frame, ~57 MB heap delta) but
 with the GC-safe data structures:
 
-| Data | `--worst` (bad) | `--worst-safe` (good) |
-|---|---|---|
-| NPC state | `class NpcState` with `NpcState target`, `int[]`, `string[]` | `struct SafeNpcDef` with `Handle!NpcDomain target`, index into shared pool |
-| Inventory | Intrusive linked list of `class NpcInventoryItem` | Pool of `struct SafeInvNode`, linked via `Handle!InvDomain` |
-| Terrain vertex | `struct PointerVertex { string materialName; NpcState owner; }` | `struct SafeTerrainVertex { ushort materialId; uint ownerNpcId; }` |
-| Display names | `string` field, re-allocated every frame | `StringId` (interned once at spawn); per-frame label in `FrameArena` |
-| Transient strings | `format()` → GC heap, 1024/frame | `FrameArena.fmt()`, reset at frame end, zero GC pressure |
+| Data              | `--worst` (bad)                                                 | `--worst-safe` (good)                                                      |
+| ----------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| NPC state         | `class NpcState` with `NpcState target`, `int[]`, `string[]`    | `struct SafeNpcDef` with `Handle!NpcDomain target`, index into shared pool |
+| Inventory         | Intrusive linked list of `class NpcInventoryItem`               | Pool of `struct SafeInvNode`, linked via `Handle!InvDomain`                |
+| Terrain vertex    | `struct PointerVertex { string materialName; NpcState owner; }` | `struct SafeTerrainVertex { ushort materialId; uint ownerNpcId; }`         |
+| Display names     | `string` field, re-allocated every frame                        | `StringId` (interned once at spawn); per-frame label in `FrameArena`       |
+| Transient strings | `format()` → GC heap, 1024/frame                                | `FrameArena.fmt()`, reset at frame end, zero GC pressure                   |
 
 All POD structs are enforced via `static assert(isPod!SafeNpcDef)` at
 compile time — the bad pattern is now a **build error**.
@@ -564,26 +565,26 @@ DRT_GCOPT="profile:1 precise:1" \
 
 Results (1200 frames, `default` GC, `precise:1`, debug build, DMD, Linux x86_64):
 
-| metric | `--worst` | `--worst-safe` | improvement |
-|---|---|---|---|
-| **max frame** | **16.06 ms** | **8.58 ms** | **−47%** |
-| **p99 frame** | **13.39 ms** | **5.06 ms** | **−62%** |
-| **p95 frame** | 8.31 ms | 4.28 ms | −48% |
-| **mean frame** | 6.78 ms | 3.97 ms | −41% |
-| **max GC pause** | **7.31 ms** | **1.90 ms** | **−74%** |
-| **max collection** | 7.59 ms | 1.92 ms | −75% |
-| **total pause (1200 frames)** | 197.9 ms | 3.8 ms | **−98%** |
-| **collections** | 40 | 3 | −92% |
-| **heap delta** | +63.4 MB | +56.8 MB | comparable |
+| metric                        | `--worst`    | `--worst-safe` | improvement |
+| ----------------------------- | ------------ | -------------- | ----------- |
+| **max frame**                 | **16.06 ms** | **8.58 ms**    | **−47%**    |
+| **p99 frame**                 | **13.39 ms** | **5.06 ms**    | **−62%**    |
+| **p95 frame**                 | 8.31 ms      | 4.28 ms        | −48%        |
+| **mean frame**                | 6.78 ms      | 3.97 ms        | −41%        |
+| **max GC pause**              | **7.31 ms**  | **1.90 ms**    | **−74%**    |
+| **max collection**            | 7.59 ms      | 1.92 ms        | −75%        |
+| **total pause (1200 frames)** | 197.9 ms     | 3.8 ms         | **−98%**    |
+| **collections**               | 40           | 3              | −92%        |
+| **heap delta**                | +63.4 MB     | +56.8 MB       | comparable  |
 
 GC-safe refactor takeaways:
 
 1. **Max GC pause drops from 7.3 ms to 1.9 ms** — within the 2 ms budget
    at 60 Hz — without any changes to the collector, the runtime, or the
-   build configuration.  The fix is entirely in the data structures.
+   build configuration. The fix is entirely in the data structures.
 2. **Total pause across 1200 frames drops from 198 ms to 3.8 ms (−98%).**
    From 40 collections averaging ~5 ms each, down to 3 collections
-   averaging ~1.3 ms each. The GC runs less often *and* costs less when
+   averaging ~1.3 ms each. The GC runs less often _and_ costs less when
    it does, because the heaps it must scan contain almost no pointer-shaped
    data.
 3. **Mean frame time drops from 6.8 ms to 4.0 ms (−41%).** The savings
@@ -591,7 +592,7 @@ GC-safe refactor takeaways:
    allocations per frame (the transient string chatter), reducing allocator
    pressure and fragmentation.
 4. **The pointer-free constraint is enforced at compile time.** `Pod!T` +
-   `static assert` turn the bad pattern into a build error.  A new
+   `static assert` turn the bad pattern into a build error. A new
    contributor cannot accidentally re-introduce `string materialName` into
    a vertex struct without the build failing.
 5. **This is the definitive answer to "fix the GC."** The GC was never

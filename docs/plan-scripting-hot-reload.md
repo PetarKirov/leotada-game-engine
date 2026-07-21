@@ -35,7 +35,7 @@ embed de Lua/Wren ficam **fora de escopo**.
 - [ ] Watcher de arquivos (inotify) para texturas / glTF / WAV
 - [ ] Reimport + swap de GPU resources / handles
 - [ ] Ownership: loaders em `engine.assets`; upload em `engine.gpu` /
-  `engine.graphics` — documentar quem libera o recurso antigo
+      `engine.graphics` — documentar quem libera o recurso antigo
 - [ ] Log claro em falha de parse (mantém asset anterior)
 
 **DoD:** editar um BMP/TGA em disco atualiza a textura sem fechar o jogo.

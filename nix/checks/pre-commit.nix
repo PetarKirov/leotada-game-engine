@@ -117,7 +117,11 @@ in
                 }
                 { id = "check-case-conflict"; }
                 { id = "check-illegal-windows-names"; }
-                { id = "end-of-file-fixer"; }
+                {
+                  id = "end-of-file-fixer";
+                  # Leave engine assets as authored (including missing final newline).
+                  exclude = assetDataRegex;
+                }
                 { id = "file-contents-sorter"; }
                 { id = "fix-byte-order-marker"; }
                 { id = "check-json"; }

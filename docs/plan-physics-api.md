@@ -18,15 +18,15 @@ Benchmark da migração: [physics-box3d-benchmark.md](physics-box3d-benchmark.md
 
 ## Estado atual
 
-| Módulo | Capacidade |
-|:---|:---|
-| [`world.d`](../source/engine/physics/world.d) | create/destroy world, step, gravity, sleep, CCD, hit threshold |
-| [`body.d`](../source/engine/physics/body.d) | box / sphere / capsule / cylinder (static/kinematic/dynamic), sensors, ground slab, velocities, impulses |
-| [`events.d`](../source/engine/physics/events.d) | contact begin/end, sensor enter/exit, hit events → `ContactListener` |
-| [`queries.d`](../source/engine/physics/queries.d) | `castRayClosest`, `overlapAabb`, `overlapSphere`, query filter |
-| [`joints.d`](../source/engine/physics/joints.d) | distance, revolute, weld |
-| [`character.d`](../source/engine/physics/character.d) | `CharacterController` (CastMover + CollideMover + SolvePlanes) |
-| [`convert.d`](../source/engine/physics/convert.d) | Vec3/Quat ↔ tipos Box3D |
+| Módulo                                                | Capacidade                                                                                               |
+| :---------------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
+| [`world.d`](../source/engine/physics/world.d)         | create/destroy world, step, gravity, sleep, CCD, hit threshold                                           |
+| [`body.d`](../source/engine/physics/body.d)           | box / sphere / capsule / cylinder (static/kinematic/dynamic), sensors, ground slab, velocities, impulses |
+| [`events.d`](../source/engine/physics/events.d)       | contact begin/end, sensor enter/exit, hit events → `ContactListener`                                     |
+| [`queries.d`](../source/engine/physics/queries.d)     | `castRayClosest`, `overlapAabb`, `overlapSphere`, query filter                                           |
+| [`joints.d`](../source/engine/physics/joints.d)       | distance, revolute, weld                                                                                 |
+| [`character.d`](../source/engine/physics/character.d) | `CharacterController` (CastMover + CollideMover + SolvePlanes)                                           |
+| [`convert.d`](../source/engine/physics/convert.d)     | Vec3/Quat ↔ tipos Box3D                                                                                  |
 
 Demos: `pong3d`, `marble_run`, `test_physics_box3d` (smoke estendido).
 

@@ -72,6 +72,7 @@ shadow depth pass (opcional) → scene color HDR offscreen (+ depth)
 **DoD:** bloom toggável (`B` no demo `pbr`).
 
 Notas de qualidade (fireflies):
+
 - Threshold usa soft knee + `bloomClamp` (default 8) para limitar spikes HDR.
 - 1º downsample usa **Karis average**; mips seguintes usam box 13-tap.
 - Specular GGX directo no PBR é soft-clamped a 16.

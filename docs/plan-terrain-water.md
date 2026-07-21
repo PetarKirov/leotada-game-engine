@@ -46,12 +46,12 @@ Não é um world builder AAA (sem rivérios procedurais, sem fluid sim completa)
 
 ## Fases (rascunho)
 
-| Fase | Conteúdo |
-|:---|:---|
-| TW-1 | Heightmap asset + mesh render + load/save |
-| TW-2 | Brushes no editor + undo de stroke |
-| TW-3 | Heightfield collider Box3D |
-| TW-4 | Water plane + material + entidade cena |
+| Fase | Conteúdo                                        |
+| :--- | :---------------------------------------------- |
+| TW-1 | Heightmap asset + mesh render + load/save       |
+| TW-2 | Brushes no editor + undo de stroke              |
+| TW-3 | Heightfield collider Box3D                      |
+| TW-4 | Water plane + material + entidade cena          |
 | TW-5 | Polish: splat 2–4 layers, wave UV, golden scene |
 
 ## Critérios de aceite

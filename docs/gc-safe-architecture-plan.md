@@ -17,28 +17,28 @@ report. Read that report first for the empirical motivation.
 
 ## Progress checklist (fonte de verdade)
 
-| # | Item | Status | Notas |
-|---:|:---|:---|:---|
-| 1 | Módulos `Pod!T` / `isPod!T` | feito | `engine.core.pod`. `ComponentStore` e `SceneGraph` usam `Pod!T[]`. |
-| 2 | `Handle!T` | feito | `engine.core.handle` — uso real no `gc_benchmark`; API pública além de `EntityId` adiada (#9). |
-| 3 | `StringId` + `StringTable` | feito | `World.strings` owns a `StringTable`. |
-| 4 | `FrameArena` (módulo) | feito | `engine.core.arena`. |
-| 5 | Sem `string` long-lived em `engine/` | feito | Auditoria ok (exceto `jph/` cancelado); lint impede regressão. |
-| 6 | `FrameArena` em `App` / `endFrame()` + overlay | feito | `App.frameArena` 4 MB, `reset()` em `endFrame()`; overlay usa buffers fixos + `sformat`. |
-| 7 | `tools/lint.d` (`dub run --config=lint`) | feito | `attrs.d` / `@noGcStorage`; config `lint` no `dub.json`. |
-| 8 | Path POD no `gc_benchmark` | feito | Default CLI = `--worst-safe`; `--worst` permanece como foil. |
-| 9 | `Handle!T` além de `EntityId` na API pública | adiado | Só quando jogos precisarem de refs tipadas além de entidades. |
+|   # | Item                                           | Status | Notas                                                                                          |
+| --: | :--------------------------------------------- | :----- | :--------------------------------------------------------------------------------------------- |
+|   1 | Módulos `Pod!T` / `isPod!T`                    | feito  | `engine.core.pod`. `ComponentStore` e `SceneGraph` usam `Pod!T[]`.                             |
+|   2 | `Handle!T`                                     | feito  | `engine.core.handle` — uso real no `gc_benchmark`; API pública além de `EntityId` adiada (#9). |
+|   3 | `StringId` + `StringTable`                     | feito  | `World.strings` owns a `StringTable`.                                                          |
+|   4 | `FrameArena` (módulo)                          | feito  | `engine.core.arena`.                                                                           |
+|   5 | Sem `string` long-lived em `engine/`           | feito  | Auditoria ok (exceto `jph/` cancelado); lint impede regressão.                                 |
+|   6 | `FrameArena` em `App` / `endFrame()` + overlay | feito  | `App.frameArena` 4 MB, `reset()` em `endFrame()`; overlay usa buffers fixos + `sformat`.       |
+|   7 | `tools/lint.d` (`dub run --config=lint`)       | feito  | `attrs.d` / `@noGcStorage`; config `lint` no `dub.json`.                                       |
+|   8 | Path POD no `gc_benchmark`                     | feito  | Default CLI = `--worst-safe`; `--worst` permanece como foil.                                   |
+|   9 | `Handle!T` além de `EntityId` na API pública   | adiado | Só quando jogos precisarem de refs tipadas além de entidades.                                  |
 
 Mapeamento checklist ↔ rollout §5:
 
-| Checklist | §5 Rollout |
-|---:|:---|
-| 1 | Step 1 (feito, incl. `Pod!T[]`) |
-| 3 + 5 | Step 2 |
-| 4 + 6 | Step 3 |
-| 7 | Step 4 |
-| 8 | Step 5 |
-| 9 | Step 6 (deferred) |
+| Checklist | §5 Rollout                      |
+| --------: | :------------------------------ |
+|         1 | Step 1 (feito, incl. `Pod!T[]`) |
+|     3 + 5 | Step 2                          |
+|     4 + 6 | Step 3                          |
+|         7 | Step 4                          |
+|         8 | Step 5                          |
+|         9 | Step 6 (deferred)               |
 
 ---
 
@@ -181,7 +181,7 @@ struct StringTable
 }
 ```
 
-Material names, dialog keys, asset paths — anything *stored* — becomes a
+Material names, dialog keys, asset paths — anything _stored_ — becomes a
 `StringId`. The interner's backing buffer is one big `char[]` (no
 per-element indirections), so the GC sees one root, not 4096. Game scripts
 still build `string`s freely; they just call `engine.strings.intern("stone")`
@@ -305,16 +305,16 @@ chains. Step 5 of the rollout (§5) verifies this empirically.
 Status relative to the checklist above. Modules and adoption for steps 1–5
 are **done**; step 6 (`Handle!T` beyond `EntityId`) remains deferred.
 
-| Add                           | Path                                  | Status |
-|-------------------------------|---------------------------------------|--------|
-| `Pod!T` / `isPod`             | source/engine/core/pod.d              | **done** (`Pod!T[]` in ComponentStore + SceneGraph) |
-| `Handle(T)`                   | source/engine/core/handle.d           | **done** |
-| `StringId` + `StringTable`    | source/engine/core/strings.d          | **done** (`World.strings`) |
-| `FrameArena`                  | source/engine/core/arena.d            | **done** (wired in `engine.app`) |
-| `@noGcStorage` UDA            | source/engine/core/attrs.d            | **done** |
-| Lint pass                     | tools/lint.d (+ `dub.json` config)    | **done** |
-| Updated guidance              | AGENTS.md                             | **done** (layered model documented) |
-| Re-export                     | source/engine/core/package.d          | **done** |
+| Add                        | Path                               | Status                                              |
+| -------------------------- | ---------------------------------- | --------------------------------------------------- |
+| `Pod!T` / `isPod`          | source/engine/core/pod.d           | **done** (`Pod!T[]` in ComponentStore + SceneGraph) |
+| `Handle(T)`                | source/engine/core/handle.d        | **done**                                            |
+| `StringId` + `StringTable` | source/engine/core/strings.d       | **done** (`World.strings`)                          |
+| `FrameArena`               | source/engine/core/arena.d         | **done** (wired in `engine.app`)                    |
+| `@noGcStorage` UDA         | source/engine/core/attrs.d         | **done**                                            |
+| Lint pass                  | tools/lint.d (+ `dub.json` config) | **done**                                            |
+| Updated guidance           | AGENTS.md                          | **done** (layered model documented)                 |
+| Re-export                  | source/engine/core/package.d       | **done**                                            |
 
 Each landed module is small (<200 LOC) and converts one class of "easy to
 write, slow at runtime" code into a compile error. Remaining risk is
@@ -331,7 +331,7 @@ numbers say "this is enough."
 
 - [x] Add `engine.core.pod`.
 - [x] Wrap the dense arrays in `ComponentStore` and `SceneGraph` with `Pod!T`
-  (Mesh/TexMesh have no CPU vertex pools; ParticlePool does not exist).
+      (Mesh/TexMesh have no CPU vertex pools; ParticlePool does not exist).
 - Acceptance: all dub configs still build; `dub test` still passes.
 
 ### Step 2 — Add `StringId` + `StringTable`, migrate engine-side string fields
@@ -339,7 +339,7 @@ numbers say "this is enough."
 - [x] Add `engine.core.strings`.
 - [x] Own a `StringTable` from `World` (`World.strings`).
 - [x] Audit `engine/` (excl. cancelled `jph/`) — no long-lived `string` fields;
-  lint gates regressions. Overlay/audio/assets use params/locals only.
+      lint gates regressions. Overlay/audio/assets use params/locals only.
 - Acceptance: no `string` survives across a frame inside live `engine/` storage.
 
 ### Step 3 — Add `FrameArena`, expose it through the system signature
@@ -360,9 +360,9 @@ numbers say "this is enough."
 ### Step 5 — Refactor the gc-benchmark `worst` scenario
 
 - [x] `worst_safe` path with `Pod` / `Handle` / `StringId` / `FrameArena`
-  already exists in `source/demo/gc_benchmark.d`.
+      already exists in `source/demo/gc_benchmark.d`.
 - [x] Safe path is the default CLI scenario and docs baseline; class-graph `worst`
-  remains as a regression foil (`--worst`).
+      remains as a regression foil (`--worst`).
 - **Acceptance:** max pause on the safe path stays <2 ms (within noise of
   the openworld scenario).
 
@@ -374,7 +374,7 @@ adding `Handle!T` to the public API risks API churn for no benefit.
 
 ---
 
-## 6. What stays *out* of scope
+## 6. What stays _out_ of scope
 
 The research report (§5–§7) ruled these out, and the rules in this
 document don't change that calculus:
