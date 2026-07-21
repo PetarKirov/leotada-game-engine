@@ -40,6 +40,8 @@
           box3d
           # Optional runtime deps for demos that present.
           pkgs.vulkan-loader
+          # Prek (git hooks) — same package as nix/checks/pre-commit.nix.
+          pkgs.prek
         ]
         ++ lib.optionals pkgs.stdenv.isLinux [
           pkgs.wayland
@@ -59,7 +61,8 @@
           if [ -z "''${VK_ICD_FILENAMES:-}" ] && [ -d ${pkgs.mesa}/share/vulkan/icd.d ]; then
             export VK_ICD_FILENAMES=$(echo ${pkgs.mesa}/share/vulkan/icd.d/*.json | tr ' ' ':')
           fi
-        '';
+        ''
+        + config.pre-commit.installationScript;
       };
     };
 }

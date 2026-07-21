@@ -41,6 +41,9 @@ __dummy.html
 result
 result-*
 
+# Prek / pre-commit — generated symlink to the store config
+.pre-commit-config.yaml
+
 # Code coverage
 *.lst
 game-engine-test-asset
